@@ -16,6 +16,14 @@ async function bootstrap() {
         .setTitle('Financial Planning API')
         .setDescription('Projeto de desafio técnico de planilha de despesas')
         .setVersion('1.0')
+        .addBearerAuth({
+            type: 'http',
+            scheme: 'bearer',
+            bearerFormat: 'JWT',
+            name: 'JWT',
+            description: 'Enter JWT token',
+            in: 'header'
+        })
         .build()
     const documentFactory = () => SwaggerModule.createDocument(app, config)
     SwaggerModule.setup('docs', app, documentFactory)
