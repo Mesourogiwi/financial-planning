@@ -1,4 +1,4 @@
-import {Controller, Get, Post, Body, Patch, Param, Delete} from '@nestjs/common'
+import {Controller, Get, Post, Body, Patch, Param, Delete, Query} from '@nestjs/common'
 import {ExpensesService} from './expenses.service'
 import {CreateExpenseDto} from './dto/create-expense.dto'
 import {UpdateExpenseDto} from './dto/update-expense.dto'
@@ -11,10 +11,23 @@ export class ExpensesController {
     create(@Body() createExpenseDto: CreateExpenseDto) {
         return this.expensesService.create(createExpenseDto)
     }
-
     @Get()
-    findAll() {
-        return this.expensesService.findAll()
+    findWithFilters(
+        @Query('title') title?: string,
+        @Query('category') category?: string,
+        @Query('month') month?: number,
+        @Query('year') year?: number,
+        @Query('minAmount') minAmount?: number,
+        @Query('maxAmount') maxAmount?: number
+    ) {
+        return this.expensesService.findWithFilters({
+            title,
+            category,
+            month,
+            year,
+            minAmount,
+            maxAmount
+        })
     }
 
     @Get(':id')

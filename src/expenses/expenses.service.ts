@@ -4,15 +4,17 @@ import {UpdateExpenseDto} from './dto/update-expense.dto'
 import {Expense, Prisma} from '../../generated/prisma'
 import {PrismaService} from '../prisma.service'
 
+type Filters = Partial<Pick<Prisma.ExpenseWhereInput, 'title' | 'category'>> & {
+    month?: number
+    year?: number
+    minAmount?: number
+    maxAmount?: number
+}
 @Injectable()
 export class ExpensesService {
     constructor(private readonly prisma: PrismaService) {}
     async create(createExpenseDto: CreateExpenseDto): Promise<Expense | null> {
         return await this.prisma.expense.create({data: createExpenseDto})
-    }
-
-    async findAll() {
-        return await this.prisma.expense.findMany()
     }
 
     async findOne(id: string) {
@@ -22,6 +24,30 @@ export class ExpensesService {
             throw new NotFoundException(`Expense with id ${id} not found`)
         }
         return expense
+    }
+
+    async findWithFilters(filters?: Filters) {
+        console.log(filters)
+        return await this.prisma.expense.findMany({
+            where: {
+                title: filters?.title,
+                category: filters?.category,
+                date: {
+                    gte:
+                        filters?.year || filters?.month
+                            ? new Date(`${filters?.year}-${filters?.month}-01`)
+                            : undefined,
+                    lte:
+                        filters?.year || filters?.month
+                            ? new Date(`${filters?.year}-${filters?.month}-31`)
+                            : undefined
+                },
+                amount: {
+                    gte: filters?.minAmount ? Number(filters?.minAmount) : undefined,
+                    lte: filters?.maxAmount ? Number(filters?.maxAmount) : undefined
+                }
+            }
+        })
     }
 
     async update(id: string, updateExpenseDto: UpdateExpenseDto) {
@@ -47,6 +73,5 @@ export class ExpensesService {
         }
 
         await this.prisma.expense.delete({where: {id}})
-        return
     }
 }
