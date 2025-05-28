@@ -2,6 +2,7 @@ import {Controller, Get, Post, Body, Patch, Param, Delete, Query} from '@nestjs/
 import {ExpensesService} from './expenses.service'
 import {CreateExpenseDto} from './dto/create-expense.dto'
 import {UpdateExpenseDto} from './dto/update-expense.dto'
+import {ApiQuery} from '@nestjs/swagger'
 
 @Controller('expenses')
 export class ExpensesController {
@@ -12,6 +13,12 @@ export class ExpensesController {
         return this.expensesService.create(createExpenseDto)
     }
     @Get()
+    @ApiQuery({name: 'title', required: false, type: String})
+    @ApiQuery({name: 'category', required: false, type: String})
+    @ApiQuery({name: 'month', required: false, type: Number})
+    @ApiQuery({name: 'year', required: false, type: Number})
+    @ApiQuery({name: 'minAmount', required: false, type: Number})
+    @ApiQuery({name: 'maxAmount', required: false, type: Number})
     findWithFilters(
         @Query('title') title?: string,
         @Query('category') category?: string,
